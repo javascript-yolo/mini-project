@@ -29,8 +29,8 @@ titl.place(x=875, y=12)
 a = tk.Label(
     window,
     text="Welcome to the Face Recognition Based\nAttendance Management System",
-    bg="black",
-    fg="yellow",
+    bg="white",
+    fg="black",
     bd=10,
     font=("arial", 35),
 )
@@ -291,6 +291,8 @@ def attendance():
     print()
     print(df2) 
     print()
+    print(result)            
+    print() 
     '''
 
     t = date.today()
