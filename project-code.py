@@ -291,7 +291,7 @@ def attendance():
     print(df2) 
     print()
     print(result)            
-    print() 
+    print()  
     '''
 
     t = date.today()
