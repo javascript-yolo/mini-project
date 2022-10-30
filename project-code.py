@@ -215,4 +215,147 @@ def findEncodings(images):
   myList = os.listdir(path)
   print("mylist", myList)
 
-  
+  for cl in myList:
+    curImg = cv2.imread(f'{path}/{cl}')
+    images.append(curImg)
+    classNames.append(os.path.splitext(cl)[0])
+  print("classnames",classNames)
+  print("images list:", images)
+
+  nameList = []
+
+  encodeListKnown = findEncodings(images)
+  print('Encoding Complete')
+
+  cap = cv2.VideoCapture(0)
+
+  while True:
+    success, img = cap.read()
+
+    cameraEXIT(img, 'EXIT')
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+  print("calling final csv")
+  Final_csv("EXIT.csv")
+
+  cap.release()
+  cv2.destroyAllWindows()
+
+
+b2 = tk.Button(window, text="Exit", font=("Algerian", 20), bg='black', fg='yellow', command=exit)
+b2.place(relx=0.37,rely=0.6)
+
+
+def attendance():
+    def clear_CSV(file_name):
+        file = open(file_name, "r+")
+        file.truncate(16)
+        file.close()
+
+    def TOminutes(Entry, Exit):
+        IN = Entry.split(':')
+        OUT = Exit.split(':')
+        t1 = (int)(IN[0]) * 60 + (int)(IN[1])
+        t2 = (int)(OUT[0]) * 60 + (int)(OUT[1])
+        return t2 - t1
+
+    df1 = pd.read_csv("ENTRY.csv")
+    df2 = pd.read_csv("EXIT.csv")
+    LIST = pd.read_csv("LIST.csv")
+
+    result = df1.merge(df2, indicator=True, how='outer').loc[lambda v: v['_merge'] == 'both']
+    result.drop(['_merge'], axis=1, inplace=True)
+
+    result['DURATION'] = 0
+
+    for i in range(result.shape[0]):
+        result['DURATION'][i] = TOminutes(result['Time_ENTRY'][i], result['Time_EXIT_'][i])
+
+    # dropping student records who have a duration less than a specified threshold
+    result = result.drop(result[result.DURATION < 1].index)
+
+    for i in range(LIST.shape[0]):
+        if result.shape[0] != 0:
+            for j in range(result.shape[0]):
+                if result['Name'][j] == LIST['Name'][i]:
+                    LIST['ATTENDANCE'][i] = "PRESENT"
+                else:
+                    LIST['ATTENDANCE'][i] = "ABSENT"
+        else:
+            LIST['ATTENDANCE'][i] = "ABSENT"
+
+    '''
+    print(df1)
+    print()
+    print(df2) 
+    print()
+    print(result)            
+    print() 
+    '''
+
+    t = date.today()
+
+    t = t.strftime("%m-%d-%Y")
+    t = t + '.csv'
+
+    print(LIST)
+
+    LIST.to_csv(t)
+
+    clear_CSV("ENTRY.csv")
+    clear_CSV("EXIT.csv")
+
+b3 = tk.Button(window, text="Mark Attendance", font=("Algerian", 20), bg='black', fg='yellow', command=attendance)
+b3.place(relx=0.5,rely=0.6)
+
+
+def update1():
+    path = 'Training_images'
+    e = ''
+    def setname():
+        ret, frame = cap.read()
+        name = e.get()
+        name = name + ".png"
+        cv2.imwrite(os.path.join(path, name), frame)
+
+    root = Toplevel(window)
+    root.geometry('644x560')
+    root.configure(bg='black')
+
+    # Create a frame
+    app = Frame(root, bg="white")
+    app.grid()
+
+    # Create a label in the frame
+    lmain = Label(app)
+    lmain.grid()
+
+    # Capture from camera
+    cap = cv2.VideoCapture(0)
+
+    # function for video streaming
+    def video_stream():
+        _, frame = cap.read()
+        cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        img = Image.fromarray(cv2image)
+        imgtk = ImageTk.PhotoImage(image=img)
+        lmain.imgtk = imgtk
+        lmain.configure(image=imgtk)
+        lmain.after(1, video_stream)
+
+    e = Entry(root, width=20, font=('Times 15'))
+    e.place(x=200, y=490, width=250, height=25)
+    e.focus_set()
+
+    b = Button(root, text='UPDATE', command=setname, width=20, font=('Helvetica 15'), bg="white", fg="black")
+    b.place(x=270, y=520, width=150, height=50)
+    video_stream()
+    root.mainloop()
+    cap.release()
+    cv2.destroyAllWindows()
+
+b4 =tk.Button(window, text="Generate database", font=("Algerian", 20), bg='black', fg='yellow', command=update1)
+b4.place(relx=0.69,rely=0.6)
+window.geometry("1920x1080")
+window.mainloop()
