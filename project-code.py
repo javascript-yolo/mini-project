@@ -9,7 +9,7 @@ import cv2
 import os
 
 window=tk.Tk()
-window.title("Face recognition system")
+window.title("Face recognition system")        #configuring screen
 window.configure(background="black")
 
 logo = Image.open("0001.png")
