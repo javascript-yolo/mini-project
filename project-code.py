@@ -156,7 +156,8 @@ def exit():
     f = f.drop_duplicates(subset=['Name'])
     f.to_csv(file_name, index=False)
 
-def findEncodings(images):
+
+  def findEncodings(images):
     encodeList = []
 
     for img in images:
@@ -290,8 +291,6 @@ def attendance():
     print()
     print(df2) 
     print()
-    print(result) 
-    print() 
     '''
 
     t = date.today()
